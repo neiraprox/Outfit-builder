@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OUTFIT LAB — Constructor de outfits</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Inter,Arial,sans-serif;background:#f1f0ec;color:#171717}
+header{height:76px;background:#fff;border-bottom:1px solid #ddd;display:flex;align-items:center;justify-content:space-between;padding:0 34px;position:sticky;top:0;z-index:10}
+.logo{font-weight:900;letter-spacing:-1px;font-size:22px}.logo span{font-weight:400;color:#888}.cart{border:1px solid #222;border-radius:999px;padding:10px 16px;background:#fff;cursor:pointer}
+main{max-width:1250px;margin:auto;padding:28px 24px 60px}
+.hero{display:flex;justify-content:space-between;align-items:end;margin-bottom:22px}.hero h1{font-size:clamp(38px,6vw,76px);line-height:.88;letter-spacing:-5px;margin:0}.hero p{max-width:410px;color:#666;margin:0 0 4px}
+.workspace{display:grid;grid-template-columns:1.25fr .75fr;gap:20px}
+.table{min-height:650px;background:#fff;border:1px solid #d9d8d3;border-radius:28px;padding:22px;position:relative;overflow:hidden;box-shadow:0 20px 60px #0000000b}
+.table:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 45%,#fff 0,#f7f6f2 58%,#e8e6df 100%);z-index:0}
+.table>*{position:relative;z-index:1}
+.tablehead{display:flex;justify-content:space-between;align-items:center}.tag{font-size:11px;letter-spacing:2px;color:#777}.clear{border:0;background:#eee;border-radius:99px;padding:8px 12px;cursor:pointer}
+.canvas{height:550px;display:flex;align-items:center;justify-content:center;position:relative;background:linear-gradient(145deg,#faf9f5,#eeece5);border-radius:20px;margin-top:12px;overflow:hidden}
+.ghost{font-size:80px;opacity:.08;font-weight:900;letter-spacing:-6px}
+.avatar{position:absolute;width:190px;height:470px;display:none;align-items:center;flex-direction:column;top:42px}
+.body{width:100px;height:210px;background:#ddd;border-radius:45px 45px 20px 20px;margin-top:95px}
+.item{position:absolute;left:50%;transform:translateX(-50%);text-align:center;transition:.25s;cursor:pointer}
+.item img{width:130px;height:130px;object-fit:cover;border-radius:18px;box-shadow:0 12px 25px #0002;background:#eee}.item b{display:block;font-size:12px;margin-top:5px}.item small{color:#777}
+.item.top{top:45px}.item.bottom{top:220px}.item.shoe{top:395px}
+.side{background:#fff;border:1px solid #ddd;border-radius:28px;padding:22px;height:fit-content}.side h2{margin:0 0 16px;font-size:23px}
+.tabs{display:flex;gap:7px;overflow:auto;margin-bottom:14px}.tab{white-space:nowrap;border:1px solid #ddd;background:#fafafa;border-radius:99px;padding:8px 12px;cursor:pointer}.tab.active{background:#171717;color:#fff;border-color:#171717}
+.products{display:grid;grid-template-columns:1fr 1fr;gap:10px}.product{border:1px solid #e1e1e1;border-radius:17px;padding:9px;cursor:pointer;transition:.2s}.product:hover{transform:translateY(-2px);box-shadow:0 8px 20px #0001}.pic{height:135px;border-radius:12px;background:#f0f0ed;overflow:hidden}.pic img{width:100%;height:100%;object-fit:cover}.product h3{font-size:12px;margin:8px 0 3px}.store{font-size:10px;color:#777}.price{font-weight:800;font-size:13px;margin-top:5px}
+.summary{margin-top:20px;border-top:1px solid #ddd;padding-top:18px}.total{display:flex;justify-content:space-between;font-size:22px;font-weight:900;margin-bottom:12px}.buy{width:100%;border:0;background:#111;color:#fff;border-radius:14px;padding:15px;font-size:15px;font-weight:800;cursor:pointer}.buy:hover{background:#333}
+.notice{font-size:11px;color:#777;line-height:1.4;margin-top:10px}
+@media(max-width:850px){header{padding:0 18px}.workspace{grid-template-columns:1fr}.table{min-height:540px}.canvas{height:430px}.side{order:2}.hero{display:block}.hero p{margin-top:15px}.products{grid-template-columns:repeat(2,1fr)}}
+
+
+.brandPanel{margin:0 0 18px;padding:15px 16px;border:1px solid #ffffff10;border-radius:18px;background:#0d0f13}
+.panelTitle{font-size:10px;letter-spacing:2px;font-weight:900;color:#777b84;margin-bottom:11px}
+.brands{display:flex;gap:8px;overflow-x:auto;padding-bottom:3px;scrollbar-width:thin}
+.brand{flex:0 0 auto;padding:10px 15px;border:1px solid #ffffff12;border-radius:999px;background:#15181d;color:#cfd1d6;font-weight:800;cursor:pointer;transition:.2s}
+.brand:hover{background:#22262c;color:#fff}
+.brand.active{background:#fff;color:#08090b;border-color:#fff}
+
+.brandPanel{margin:0 0 18px;border:1px solid #ddd;border-radius:20px;background:#fafaf8;overflow:hidden}
+.panelTitle{padding:14px 16px 10px;font-size:10px;letter-spacing:2px;font-weight:900;color:#777}
+.brandList{display:flex;flex-direction:column}
+.brandRow{border-top:1px solid #e5e5e1}
+.brandBtn{width:100%;display:flex;align-items:center;gap:12px;padding:14px 15px;border:0;background:#fff;color:#171717;text-align:left;cursor:pointer}
+.brandBtn:hover{background:#f5f5f2}
+.brandMark{width:42px;height:42px;flex:0 0 42px;border-radius:11px;background:#111;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;letter-spacing:-.5px}
+.brandName{font-weight:850;font-size:14px;flex:1}
+.brandCount{font-size:10px;color:#999;margin-right:6px}
+.chevron{font-size:18px;color:#999;transition:.2s}
+.brandRow.open .chevron{transform:rotate(90deg)}
+.brandPanelInner{display:none;padding:0 13px 14px;background:#fafaf8}
+.brandRow.open .brandPanelInner{display:block}
+.brandSearch{display:flex;gap:7px;margin-bottom:10px}
+.brandSearch input{min-width:0;flex:1;padding:10px 11px;border:1px solid #ddd;border-radius:11px;background:#fff;font-size:12px;outline:none}
+.brandSearch button{border:0;border-radius:11px;background:#111;color:#fff;padding:0 12px;font-size:11px;font-weight:800;cursor:pointer}
+.brandActions{display:flex;gap:7px;margin-bottom:11px}
+.brandActions a{flex:1;text-align:center;text-decoration:none;padding:9px;border:1px solid #ddd;border-radius:10px;color:#222;background:#fff;font-size:10px;font-weight:800}
+.brandProducts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.brandProduct{background:#fff;border:1px solid #e5e5e5;border-radius:13px;padding:7px;cursor:pointer}
+.brandProduct img{width:100%;height:92px;object-fit:cover;border-radius:9px;background:#eee}
+.brandProduct b{display:block;font-size:10px;margin-top:6px;line-height:1.2}
+.brandProduct small{display:block;color:#777;font-size:9px;margin-top:3px}
+.brandHint{font-size:10px;color:#888;line-height:1.35;margin-top:9px}
+@media(max-width:850px){.brandProducts{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<header><div class="logo">OUTFIT <span>LAB</span></div><button class="cart" onclick="scrollToBuilder()">Construir outfit</button></header>
+<main>
+<section class="hero"><div><div class="tag">DIGITAL FITTING ROOM</div><h1>ARMA.<br>COMBINA.<br>COMPRA.</h1></div><p>Empieza con una mesa en blanco. Elige prendas de distintas tiendas y crea tu outfit ideal. Al terminar, compra cada pieza directamente en su tienda.</p></section>
+
+<section class="workspace" id="builder">
+<div class="table">
+<div class="tablehead"><div class="tag">TU MESA · OUTFIT ACTUAL</div><button class="clear" onclick="clearOutfit()">Limpiar</button></div>
+<div class="canvas" id="canvas"><div class="ghost">BLANK</div></div>
+</div>
+
+<aside class="side">
+<h2>Añade prendas</h2>
+<div class="tabs" id="tabs"></div>
+<div class="brandPanel">
+  <div class="panelTitle">ELIGE UNA MARCA</div>
+  <div class="brandList" id="brands"></div>
+</div>
+
+<div class="products" id="products"></div>
+<div class="summary"><div class="total"><span>Total</span><span id="total">$0</span></div><button class="buy" onclick="buyOutfit()">COMPRAR OUTFIT →</button><div class="notice">Al comprar, te enviaremos a las tiendas originales para completar cada compra. Los precios pueden cambiar según la tienda.</div></div>
+</aside>
+</section>
+</main>
+
+<script>
+const products=[
+{id:1,type:"Polera",name:"Camiseta básica blanca",store:"Zara",price:19990,img:"https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500&q=80",url:"https://www.zara.com/cl/"},
+{id:2,type:"Polera",name:"Camiseta oversize negra",store:"H&M",price:17990,img:"https://images.unsplash.com/photo-1503341504253-dff4815485f1?w=500&q=80",url:"https://www2.hm.com/es_cl/"},
+{id:3,type:"Pantalón",name:"Jeans rectos azul",store:"Levi's",price:69990,img:"https://images.unsplash.com/photo-1542272604-787c3835535d?w=500&q=80",url:"https://www.levi.com/CL/es_CL/"},
+{id:4,type:"Pantalón",name:"Cargo negro",store:"Zara",price:49990,img:"https://images.unsplash.com/photo-1517445312882-bc9910d016b1?w=500&q=80",url:"https://www.zara.com/cl/"},
+{id:5,type:"Chaqueta",name:"Chaqueta denim",store:"Zara",price:79990,img:"https://images.unsplash.com/photo-1576995853123-5a10305d93c0?w=500&q=80",url:"https://www.zara.com/cl/"},
+{id:6,type:"Chaqueta",name:"Chaqueta bomber",store:"H&M",price:59990,img:"https://images.unsplash.com/photo-1551028719-00167b16eac5?w=500&q=80",url:"https://www2.hm.com/es_cl/"},
+{id:7,type:"Zapatillas",name:"Samba OG",store:"adidas",price:99990,img:"https://images.unsplash.com/photo-1552346154-21d32810aba3?w=500&q=80",url:"https://www.adidas.cl/calzado-zapatillas-hombre"},
+{id:8,type:"Zapatillas",name:"Sneaker blanca",store:"adidas",price:89990,img:"https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&q=80",url:"https://www.adidas.cl/zapatillas-blanco-hombre"},
+{id:9,type:"Accesorio",name:"Gorra clásica",store:"H&M",price:14990,img:"https://images.unsplash.com/photo-1521369909029-2afed882baee?w=500&q=80",url:"https://www2.hm.com/es_cl/"},
+{id:10,type:"Accesorio",name:"Lentes negros",store:"Zara",price:29990,img:"https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=500&q=80",url:"https://www.zara.com/cl/"}
+];
+const cats=["Todo","Polera","Pantalón","Chaqueta","Zapatillas","Accesorio"];
+let selected=[];
+let active="Todo";
+const tabs=document.getElementById("tabs"), productsEl=document.getElementById("products");
+function money(n){return "$"+n.toLocaleString("es-CL")}
+function renderTabs(){tabs.innerHTML=cats.map(c=>`<button class="tab ${c===active?"active":""}" onclick="setCat('${c}')">${c}</button>`).join("")}
+function renderProducts(){let list=products.filter(p=>active==="Todo"||p.type===active);productsEl.innerHTML=list.map(p=>`<div class="product" onclick="addItem(${p.id})"><div class="pic"><img src="${p.img}" alt=""></div><h3>${p.name}</h3><div class="store">${p.store}</div><div class="price">${money(p.price)}</div></div>`).join("")}
+function setCat(c){active=c;renderTabs();renderProducts()}
+function addItem(id){const p=products.find(x=>x.id===id);selected=selected.filter(x=>x.type!==p.type);selected.push(p);renderCanvas()}
+function removeItem(id){selected=selected.filter(x=>x.id!==id);renderCanvas()}
+function renderCanvas(){
+ const c=document.getElementById("canvas");
+ if(!selected.length){c.innerHTML='<div class="ghost">BLANK</div>';document.getElementById("total").textContent="$0";return}
+ const order={Chaqueta:1,Polera:2,Pantalón:3,Zapatillas:4,Accesorio:5};
+ const visible=[...selected].sort((a,b)=>order[a.type]-order[b.type]);
+ c.innerHTML=visible.map(p=>`<div class="item ${p.type==="Polera"?"top":p.type==="Pantalón"?"bottom":p.type==="Zapatillas"?"shoe":"top"}" style="${p.type==="Chaqueta"?'top:25px;z-index:3':''}" onclick="removeItem(${p.id})"><img src="${p.img}"><b>${p.name}</b><small>${p.store} · ${money(p.price)}</small></div>`).join("");
+ document.getElementById("total").textContent=money(selected.reduce((a,p)=>a+p.price,0));
+}
+function clearOutfit(){selected=[];renderCanvas()}
+function buyOutfit(){
+ if(!selected.length){alert("Añade al menos una prenda a tu outfit.");return}
+ const stores=[...new Map(selected.map(p=>[p.store,p])).values()];
+ if(confirm(`Tu outfit cuesta ${money(selected.reduce((a,p)=>a+p.price,0))} en total. Te enviaremos a ${stores.length} tienda(s) para comprar las prendas. ¿Continuar?`)){
+   stores.forEach((p,i)=>setTimeout(()=>window.open(p.url,"_blank"),i*450));
+ }
+}
+function scrollToBuilder(){document.getElementById("builder").scrollIntoView({behavior:"smooth"})}
+renderTabs();renderProducts();renderCanvas();
+
+
+
+const brands=[
+ {id:"adidas",name:"adidas",mark:"adidas",count:"1.400+",search:"https://www.adidas.cl/search?q=",shop:"https://www.adidas.cl/ropa-hombre",products:[
+  {id:7,name:"Samba OG",type:"Zapatillas",price:99990,img:"https://images.unsplash.com/photo-1552346154-21d32810aba3?w=500&q=80",url:"https://www.adidas.cl/calzado-zapatillas-hombre"},
+  {id:8,name:"Sneaker blanca",type:"Zapatillas",price:89990,img:"https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&q=80",url:"https://www.adidas.cl/calzado-zapatillas-hombre"},
+  {id:11,name:"Polera Workout Essentials",type:"Polera",price:19990,img:"https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500&q=80",url:"https://www.adidas.cl/ropa-hombre"}
+ ]},
+ {id:"nike",name:"Nike",mark:"NIKE",count:"300+",search:"https://www.nike.com/cl/search?q=",shop:"https://www.nike.com/cl/w/hombres-ropa-3m7y0znik1",products:[
+  {id:12,name:"Polera deportiva Nike",type:"Polera",price:19990,img:"https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500&q=80",url:"https://www.nike.com/cl/"},
+  {id:13,name:"Polerón Nike",type:"Chaqueta",price:41990,img:"https://images.unsplash.com/photo-1551028719-00167b16eac5?w=500&q=80",url:"https://www.nike.com/cl/"},
+  {id:14,name:"Club BB Jogger",type:"Pantalón",price:33990,img:"https://images.unsplash.com/photo-1517445312882-bc9910d016b1?w=500&q=80",url:"https://www.nike.com/cl/"}
+ ]},
+ {id:"hm",name:"H&M",mark:"H&M",count:"Miles",search:"https://www2.hm.com/es_cl/search-results.html?q=",shop:"https://www2.hm.com/es_cl/hombre.html",products:[
+  {id:2,name:"Camiseta oversize negra",type:"Polera",price:17990,img:"https://images.unsplash.com/photo-1503341504253-dff4815485f1?w=500&q=80",url:"https://www2.hm.com/es_cl/"},
+  {id:6,name:"Chaqueta bomber",type:"Chaqueta",price:59990,img:"https://images.unsplash.com/photo-1551028719-00167b16eac5?w=500&q=80",url:"https://www2.hm.com/es_cl/"},
+  {id:9,name:"Gorra clásica",type:"Accesorio",price:14990,img:"https://images.unsplash.com/photo-1521369909029-2afed882baee?w=500&q=80",url:"https://www2.hm.com/es_cl/"}
+ ]},
+ {id:"zara",name:"ZARA",mark:"ZARA",count:"Miles",search:"https://www.zara.com/cl/es/search?searchTerm=",shop:"https://www.zara.com/cl/es/",products:[
+  {id:1,name:"Camiseta básica blanca",type:"Polera",price:19990,img:"https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500&q=80",url:"https://www.zara.com/cl/es/"},
+  {id:4,name:"Cargo negro",type:"Pantalón",price:49990,img:"https://images.unsplash.com/photo-1517445312882-bc9910d016b1?w=500&q=80",url:"https://www.zara.com/cl/es/"},
+  {id:5,name:"Chaqueta denim",type:"Chaqueta",price:79990,img:"https://images.unsplash.com/photo-1576995853123-5a10305d93c0?w=500&q=80",url:"https://www.zara.com/cl/es/"}
+ ]},
+ {id:"falabella",name:"Falabella",mark:"F",count:"12.000+",search:"https://www.falabella.com/falabella-cl/search?Ntt=",shop:"https://www.falabella.com/falabella-cl/",products:[
+  {id:15,name:"Polera deportiva",type:"Polera",price:19990,img:"https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500&q=80",url:"https://www.falabella.com/falabella-cl/"},
+  {id:16,name:"Pantalón deportivo",type:"Pantalón",price:39990,img:"https://images.unsplash.com/photo-1517445312882-bc9910d016b1?w=500&q=80",url:"https://www.falabella.com/falabella-cl/"},
+  {id:17,name:"Chaqueta deportiva",type:"Chaqueta",price:49990,img:"https://images.unsplash.com/photo-1551028719-00167b16eac5?w=500&q=80",url:"https://www.falabella.com/falabella-cl/"}
+ ]},
+ {id:"ripley",name:"Ripley",mark:"R",count:"Miles",search:"https://simple.ripley.cl/search/",shop:"https://simple.ripley.cl/",products:[
+  {id:18,name:"Polera urbana",type:"Polera",price:19990,img:"https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500&q=80",url:"https://simple.ripley.cl/"},
+  {id:19,name:"Jeans rectos",type:"Pantalón",price:49990,img:"https://images.unsplash.com/photo-1542272604-787c3835535d?w=500&q=80",url:"https://simple.ripley.cl/"},
+  {id:20,name:"Chaqueta urbana",type:"Chaqueta",price:59990,img:"https://images.unsplash.com/photo-1576995853123-5a10305d93c0?w=500&q=80",url:"https://simple.ripley.cl/"}
+ ]},
+ {id:"puma",name:"PUMA",mark:"PUMA",count:"300+",search:"https://cl.puma.com/search?q=",shop:"https://cl.puma.com/",products:[]},
+ {id:"levis",name:"Levi's",mark:"LEVI'S",count:"200+",search:"https://www.levi.com/CL/es_CL/search?q=",shop:"https://www.levi.com/CL/es_CL/",products:[
+  {id:3,name:"Jeans rectos azul",type:"Pantalón",price:69990,img:"https://images.unsplash.com/photo-1542272604-787c3835535d?w=500&q=80",url:"https://www.levi.com/CL/es_CL/"}
+ ]},
+ {id:"newbalance",name:"New Balance",mark:"NB",count:"200+",search:"https://www.newbalance.cl/search?q=",shop:"https://www.newbalance.cl/",products:[]},
+ {id:"converse",name:"Converse",mark:"★",count:"100+",search:"https://converse.cl/search?q=",shop:"https://converse.cl/",products:[]},
+ {id:"uniqlo",name:"UNIQLO",mark:"UNIQLO",count:"Miles",search:"https://www.uniqlo.com/cl/es/search?q=",shop:"https://www.uniqlo.com/cl/es/",products:[]}
+];
+
+function brandCard(b){
+ return `<div class="brandRow" id="brand-${b.id}">
+   <button class="brandBtn" onclick="toggleBrand('${b.id}')">
+    <span class="brandMark">${b.mark}</span><span class="brandName">${b.name}</span><span class="brandCount">${b.count}</span><span class="chevron">›</span>
+   </button>
+   <div class="brandPanelInner">
+     <div class="brandSearch"><input id="q-${b.id}" placeholder="Buscar en ${b.name}..." onkeydown="if(event.key==='Enter') searchBrand('${b.id}')"><button onclick="searchBrand('${b.id}')">BUSCAR</button></div>
+     <div class="brandActions"><a href="${b.shop}" target="_blank" rel="noopener">VER TIENDA</a><a href="${b.search}" target="_blank" rel="noopener">TODOS LOS PRODUCTOS</a></div>
+     <div class="brandProducts">${b.products.length?b.products.map(p=>`<div class="brandProduct" onclick="addProductFromBrand(${p.id})"><img src="${p.img}" alt=""><b>${p.name}</b><small>${p.type} · ${money(p.price)}</small></div>`).join(""):`<div class="brandHint">Abre “TODOS LOS PRODUCTOS” o busca arriba para ver el catálogo vivo de esta marca. Cuando encuentres una prenda, puedes añadirla a tu outfit desde el catálogo de la tienda.</div>`}</div>
+     <div class="brandHint">La tienda mantiene su catálogo y stock actualizados. El constructor muestra una selección inicial para que puedas empezar a combinar.</div>
+   </div>
+ </div>`
+}
+
+function renderBrands(){document.getElementById("brands").innerHTML=brands.map(brandCard).join("")}
+function toggleBrand(id){
+ const row=document.getElementById("brand-"+id);
+ const was=row.classList.contains("open");
+ document.querySelectorAll(".brandRow.open").forEach(r=>r.classList.remove("open"));
+ if(!was) row.classList.add("open");
+}
+function searchBrand(id){
+ const b=brands.find(x=>x.id===id), q=document.getElementById("q-"+id).value.trim();
+ if(q) window.open(b.search+encodeURIComponent(q),"_blank");
+ else window.open(b.search,"_blank");
+}
+function addProductFromBrand(id){
+ const p=products.concat(...brands.map(b=>b.products)).find(x=>x.id===id);
+ if(!p)return;
+ selected=selected.filter(x=>x.type!==p.type);
+ selected.push(p);
+ renderCanvas();
+}
+renderBrands();
+</script>
+</body>
+</html>
